@@ -1,0 +1,20 @@
+[
+  {
+    "type_code": "burdened_one",
+    "section": "intro",
+    "score_min": 0,
+    "score_max": 39,
+    "variant_no": 1,
+    "lang": "ko",
+    "content": "이 사람은 토성 기질이 인생 전체를 질식시킬 만큼 센 건 아니다..."
+  },
+  {
+    "type_code": "burdened_one",
+    "section": "intro",
+    "score_min": 0,
+    "score_max": 39,
+    "variant_no": 2,
+    "lang": "ko",
+    "content": "토성 점수가 약한 사람은 겉으로 보기엔 생각보다 편안하다..."
+  }
+]
