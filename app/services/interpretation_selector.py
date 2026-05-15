@@ -10,4 +10,5 @@ def select_interpretations(
     return get_interpretation_sections(
         primary_type_code=primary_type_code,
         primary_score=primary_score,
+        lang="en",
     )

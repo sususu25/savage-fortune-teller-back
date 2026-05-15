@@ -5,16 +5,16 @@
     "score_min": 0,
     "score_max": 39,
     "variant_no": 1,
-    "lang": "ko",
-    "content": "이 사람은 토성 기질이 인생 전체를 질식시킬 만큼 센 건 아니다..."
+    "lang": "en",
+    "content": "You are not crushed by Saturn-level pressure, but you are never fully careless either. Even when life looks manageable, part of you is already bracing for the cleanup, the consequences, and the cost of getting things wrong."
   },
   {
     "type_code": "burdened_one",
-    "section": "intro",
+    "section": "overall",
     "score_min": 0,
     "score_max": 39,
-    "variant_no": 2,
-    "lang": "ko",
-    "content": "토성 점수가 약한 사람은 겉으로 보기엔 생각보다 편안하다..."
+    "variant_no": 1,
+    "lang": "en",
+    "content": "You are usually low-key, but in moments of instability your realism becomes obvious. When things go sideways, you often become more useful, focused, and grounded than people expected."
   }
 ]

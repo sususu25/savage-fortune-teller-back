@@ -10,15 +10,31 @@ def search_location(
     city: str = Query(..., min_length=2),
     country: str = Query(..., min_length=2),
 ):
-    location = search_local_location(city=city, country=country)
+    try:
+        location = search_local_location(city=city, country=country)
 
-    if not location:
+        if not location:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "message": "Location not found.",
+                    "city": city,
+                    "country": country,
+                    "hint": "This location is not registered in the local location database yet.",
+                },
+            )
+
+        return {
+            "message": "Location found successfully.",
+            "location": location,
+        }
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        print("DEBUG unexpected location search error:", repr(e))
         raise HTTPException(
-            status_code=404,
-            detail=f"Location not found in local database: {city}, {country}",
+            status_code=500,
+            detail="Failed to search location.",
         )
-
-    return {
-        "message": "Location found successfully.",
-        "location": location,
-    }
