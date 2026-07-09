@@ -2,6 +2,8 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List
 
+from app.data.archetype_copy import SECTION_TITLES
+
 
 SEED_FILE_PATH = Path(__file__).resolve().parents[1] / "seed" / "interpretations_seed.json"
 
@@ -18,14 +20,7 @@ def find_interpretations(
 ) -> Dict[str, str]:
     rows = load_interpretation_rows()
 
-    sections = {
-        "intro": "",
-        "overall": "",
-        "love": "",
-        "career": "",
-        "health": "",
-        "money": "",
-    }
+    sections = {section_key: "" for section_key in SECTION_TITLES.keys()}
 
     matched_rows = [
         row for row in rows

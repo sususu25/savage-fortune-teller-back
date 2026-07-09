@@ -1,20 +1,326 @@
 [
   {
     "type_code": "burdened_one",
-    "section": "intro",
+    "section": "cosmic_diagnosis",
     "score_min": 0,
-    "score_max": 39,
+    "score_max": 100,
     "variant_no": 1,
     "lang": "en",
-    "content": "You are not crushed by Saturn-level pressure, but you are never fully careless either. Even when life looks manageable, part of you is already bracing for the cleanup, the consequences, and the cost of getting things wrong."
+    "content": "You are The Unpaid Project Manager of the Universe: responsible, tired, and somehow already blamed for a group project nobody assigned you. Your chart has strong 'I will handle it' energy, which is noble, but also a little tragic. Put the clipboard down. Your ass deserves sunlight."
   },
   {
     "type_code": "burdened_one",
-    "section": "overall",
+    "section": "why_you_are_like_this",
     "score_min": 0,
-    "score_max": 39,
+    "score_max": 100,
     "variant_no": 1,
     "lang": "en",
-    "content": "You are usually low-key, but in moments of instability your realism becomes obvious. When things go sideways, you often become more useful, focused, and grounded than people expected."
+    "content": "Saturn said, 'Let's give this one discipline,' and then forgot to install joy as a default app. You learned early that being useful gets you invited, trusted, and exhausted. Now you confuse peace with waiting for the next damn problem."
+  },
+  {
+    "type_code": "burdened_one",
+    "section": "the_receipts",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "The chart is waving Saturn signatures, hard aspects, and duty-heavy house emphasis like evidence in court. Translation: you are built for endurance, but endurance is not a personality. The stars admire your backbone and would also like you to unclench your jaw."
+  },
+  {
+    "type_code": "burdened_one",
+    "section": "emotional_damage_forecast",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "This week, you may attempt to solve a problem by becoming furniture: silent, sturdy, and emotionally unavailable. Do not. Ask for help before your nervous system starts sending invoices."
+  },
+  {
+    "type_code": "burdened_one",
+    "section": "love_life_a_situation",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "In love, you do loyalty like a full-time job with no benefits. Stop auditioning for the role of someone's emotional infrastructure. If they cannot meet you with consistency, they can go disappoint a spreadsheet."
+  },
+  {
+    "type_code": "burdened_one",
+    "section": "court_ordered_advice",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "Schedule rest like it is a meeting with someone rich. Say no before your body has to file a complaint. Being capable does not mean you have to become everyone's damn load-bearing wall."
+  },
+  {
+    "type_code": "chaos_magnet",
+    "section": "cosmic_diagnosis",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "You are The Human Plot Twist. People think they are having a normal Tuesday, then you arrive and suddenly there is lore. Your chart has lightning-in-a-bottle energy, which is exciting, unstable, and probably not covered by insurance."
+  },
+  {
+    "type_code": "chaos_magnet",
+    "section": "why_you_are_like_this",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "Uranus, mutable energy, and crisis-house signatures are giving 'I swear I did not start this' while standing directly beside the smoke. You crave freedom so hard that stability starts looking like a cage with Wi-Fi."
+  },
+  {
+    "type_code": "chaos_magnet",
+    "section": "the_receipts",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "The chart points to sudden-change signatures, Uranus pressure, and enough mutable wiring to make a calendar nervous. Translation: you are allergic to predictable scripts. Cute, but please stop treating consequences like optional DLC."
+  },
+  {
+    "type_code": "chaos_magnet",
+    "section": "emotional_damage_forecast",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "A surprise pivot is likely. You may call it intuition. Everyone else may call it 'why is there a suitcase packed at 2 a.m.' Breathe before you blow up your life for texture."
+  },
+  {
+    "type_code": "chaos_magnet",
+    "section": "love_life_a_situation",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "Your romantic style is chemistry, chaos, then a TED Talk about needing space. If someone brings peace, do not immediately poke it with a stick to check if it is boring. Let calm have a personality."
+  },
+  {
+    "type_code": "chaos_magnet",
+    "section": "court_ordered_advice",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "Before making a dramatic decision, eat something, charge your phone, and ask whether you want freedom or just dopamine with a fake mustache. Your chaos is iconic. It still needs a budget."
+  },
+  {
+    "type_code": "overthinker",
+    "section": "cosmic_diagnosis",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "You are The 47 Tabs Open Personality. Your brain is a group chat where everyone is typing, nobody is reading, and one tab is replaying a sentence from 2019 like it pays rent. Brilliant? Yes. Peaceful? Absolutely the hell not."
+  },
+  {
+    "type_code": "overthinker",
+    "section": "why_you_are_like_this",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "Mercury is doing unpaid overtime in your chart. You process feelings by turning them into a 12-part internal investigation. Somewhere along the way, thinking became your emotional seatbelt, and now you are buckled into a parked car."
+  },
+  {
+    "type_code": "overthinker",
+    "section": "the_receipts",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "Mercury emphasis, air dominance, third-house noise, and hard mental aspects are all pointing at the same clown car: your mind is fast, sharp, and rude as hell to your nervous system."
+  },
+  {
+    "type_code": "overthinker",
+    "section": "emotional_damage_forecast",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "You may spend three hours analyzing a text that meant exactly what it said. Please do not build a conspiracy board because someone replied 'sure.' Go outside and let your ass remember weather exists."
+  },
+  {
+    "type_code": "overthinker",
+    "section": "love_life_a_situation",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "In love, you can turn a crush into a research project with citations. Ask the question. Send the message. Stop making eye contact with imaginary rejection in the corner."
+  },
+  {
+    "type_code": "overthinker",
+    "section": "court_ordered_advice",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "Set a timer for worrying. When it ends, do one real-world action, even a tiny one. Your brain is useful, but it is not the damn CEO of reality."
+  },
+  {
+    "type_code": "dangerous_heart",
+    "section": "cosmic_diagnosis",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "You are The Romantic Red Flag with Good Branding. You love like there is a soundtrack, a storm warning, and a private investigator in the bushes. Magnetic? Yes. Low maintenance? That is adorable. No."
+  },
+  {
+    "type_code": "dangerous_heart",
+    "section": "why_you_are_like_this",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "Pluto and relationship houses are giving emotional x-ray vision with trust issues in designer sunglasses. You do not just catch feelings; you start a forensic audit of the entire bond."
+  },
+  {
+    "type_code": "dangerous_heart",
+    "section": "the_receipts",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "Venus-Pluto, Moon-Pluto, Mars-Pluto, Scorpio, 5th, 7th, or 8th house emphasis can all feed this beautiful mess. The chart says your heart has depth. It also says the depth has a basement."
+  },
+  {
+    "type_code": "dangerous_heart",
+    "section": "emotional_damage_forecast",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "You may feel tempted to mistake intensity for intimacy. Again. Put the magnifying glass down. If they make you feel insane, that is not chemistry; that is your nervous system filing a police report."
+  },
+  {
+    "type_code": "dangerous_heart",
+    "section": "love_life_a_situation",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "Your love life is not boring because you keep casting emotionally unavailable people as limited-series villains. Choose someone whose affection does not require subtitles, decoding, or a damn search warrant."
+  },
+  {
+    "type_code": "dangerous_heart",
+    "section": "court_ordered_advice",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "Let desire be information, not a hostage situation. Ask whether you feel loved or just activated. If the answer is 'activated,' drink water and stop texting the problem."
+  },
+  {
+    "type_code": "haunted_dreamer",
+    "section": "cosmic_diagnosis",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "You are The Delulu Oracle: half psychic hotline, half unwashed laundry pile of feelings. Your intuition is loud, dramatic, and annoyingly correct often enough to keep you believing your own nonsense."
+  },
+  {
+    "type_code": "haunted_dreamer",
+    "section": "why_you_are_like_this",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "Neptune, Pisces, water, and 12th-house signals can make your boundaries behave like wet paper. You absorb vibes, moods, fantasies, and other people's bullshit like a spiritual sponge with no HR department."
+  },
+  {
+    "type_code": "haunted_dreamer",
+    "section": "the_receipts",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "The receipts are Neptune contacts, porous-boundary signatures, water dominance, and private-house emphasis. The stars say you are sensitive. The stars also ask why you keep calling avoidance 'a healing era.'"
+  },
+  {
+    "type_code": "haunted_dreamer",
+    "section": "emotional_damage_forecast",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "A vibe may lie to you today. It will arrive wearing moonlight and a convincing playlist. Before you romanticize a red flag into a soulmate, please consult evidence, not just fog."
+  },
+  {
+    "type_code": "haunted_dreamer",
+    "section": "love_life_a_situation",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "You can fall in love with potential, subtext, and someone's imaginary healed version. Babe, date the person in the room, not the screenplay you wrote about them at 1 a.m."
+  },
+  {
+    "type_code": "haunted_dreamer",
+    "section": "court_ordered_advice",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "Ground the vision. Eat protein. Reply to one email. Put a boundary where the spiritual fog keeps leaking in. Your dreams are powerful, but they still need pants."
+  },
+  {
+    "type_code": "unfinished_legend",
+    "section": "cosmic_diagnosis",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "You are The Main Character in Development Hell. The potential is loud, the timing is weird, and the universe keeps sending you side quests like it lost the main script. Iconic, yes. Efficient, not even slightly."
+  },
+  {
+    "type_code": "unfinished_legend",
+    "section": "why_you_are_like_this",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "North Node, MC, Jupiter, Saturn, or Pluto signatures can make life feel like a destiny trailer with no release date. You are not behind; you are being annoyingly edited by cosmic post-production."
+  },
+  {
+    "type_code": "unfinished_legend",
+    "section": "the_receipts",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "The receipts point to node contacts, career-axis emphasis, and late-bloomer signatures. Translation: your chart has long-game energy. The problem is you keep waiting for a sign when the sign is 'do the damn thing.'"
+  },
+  {
+    "type_code": "unfinished_legend",
+    "section": "emotional_damage_forecast",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "You may compare your chapter three to someone else's season finale. Stop. Their highlight reel is not a court order. Your timeline is strange, but it is not defective."
+  },
+  {
+    "type_code": "unfinished_legend",
+    "section": "love_life_a_situation",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "In love, you need someone who respects the build, not someone who keeps asking why the monument is still under scaffolding. Do not shrink your future because someone has the attention span of a toaster."
+  },
+  {
+    "type_code": "unfinished_legend",
+    "section": "court_ordered_advice",
+    "score_min": 0,
+    "score_max": 100,
+    "variant_no": 1,
+    "lang": "en",
+    "content": "Pick one unfinished thing and move it one ugly inch forward. Not perfect. Not branded. Just forward. Potential is cute, but execution is where the rent is paid."
   }
 ]
