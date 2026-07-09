@@ -10,3 +10,5 @@ geopy
 timezonefinder
 pyswisseph
 requests
+pytest
+httpx
