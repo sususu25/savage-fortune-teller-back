@@ -7,11 +7,12 @@ from app.core.config import settings
 
 app = FastAPI(title=settings.PROJECT_NAME)
 
-allow_all_origins = "*" in settings.BACKEND_CORS_ORIGINS
+backend_cors_origins = settings.backend_cors_origins
+allow_all_origins = "*" in backend_cors_origins
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.BACKEND_CORS_ORIGINS,
+    allow_origins=backend_cors_origins,
     allow_credentials=not allow_all_origins,
     allow_methods=["*"],
     allow_headers=["*"],

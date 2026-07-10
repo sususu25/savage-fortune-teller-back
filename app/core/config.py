@@ -1,6 +1,6 @@
+import json
 from functools import lru_cache
 
-from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -13,18 +13,21 @@ class Settings(BaseSettings):
 
     PROJECT_NAME: str = "Savage Fortune Teller API"
     API_V1_PREFIX: str = "/api/v1"
-    BACKEND_CORS_ORIGINS: list[str] = ["*"]
+    BACKEND_CORS_ORIGINS: str = "*"
     GEONAMES_USERNAME: str | None = None
 
-    @field_validator("BACKEND_CORS_ORIGINS", mode="before")
-    @classmethod
-    def parse_cors_origins(cls, value: str | list[str]) -> list[str]:
-        if isinstance(value, str):
-            if not value.strip():
-                return []
-            return [origin.strip() for origin in value.split(",") if origin.strip()]
+    @property
+    def backend_cors_origins(self) -> list[str]:
+        value = self.BACKEND_CORS_ORIGINS.strip()
+        if not value:
+            return []
 
-        return value
+        if value.startswith("["):
+            parsed = json.loads(value)
+            if isinstance(parsed, list):
+                return [str(origin).strip() for origin in parsed if str(origin).strip()]
+
+        return [origin.strip() for origin in value.split(",") if origin.strip()]
 
 
 @lru_cache
