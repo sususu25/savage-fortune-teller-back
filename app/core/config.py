@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     API_V1_PREFIX: str = "/api/v1"
     BACKEND_CORS_ORIGINS: str = "*"
     GEONAMES_USERNAME: str | None = None
+    FIRESTORE_DATABASE: str = "sft-db"
+    FIRESTORE_SHARES_COLLECTION: str = "shares"
+    PUBLIC_APP_URL: str | None = None
 
     @property
     def backend_cors_origins(self) -> list[str]:

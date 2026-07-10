@@ -10,5 +10,6 @@ geopy
 timezonefinder
 pyswisseph
 requests
+google-cloud-firestore
 pytest
 httpx
