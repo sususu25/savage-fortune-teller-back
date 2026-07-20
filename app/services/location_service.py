@@ -202,6 +202,70 @@ def _local_matches(city: str, country: Optional[str], limit: int) -> list[Dict[s
     return matches[:limit]
 
 
+def _nominatim_matches(city: str, country: Optional[str], limit: int) -> list[Dict[str, Any]]:
+    params: dict[str, Any] = {
+        "format": "jsonv2",
+        "addressdetails": 1,
+        "limit": limit,
+        "q": f"{city}, {country}" if country else city,
+    }
+
+    try:
+        response = requests.get(
+            "https://nominatim.openstreetmap.org/search",
+            params=params,
+            timeout=(3, 7),
+            headers={"User-Agent": "savage-fortune-teller/0.1 contact: firebase-hosting"},
+        )
+        response.raise_for_status()
+        payload = response.json()
+    except Exception as exc:
+        print("DEBUG Nominatim location search failed:", repr(exc))
+        return []
+
+    tf = TimezoneFinder()
+    matches: list[Dict[str, Any]] = []
+
+    for place in payload:
+        try:
+            latitude = float(place["lat"])
+            longitude = float(place["lon"])
+        except (KeyError, TypeError, ValueError):
+            continue
+
+        timezone = tf.timezone_at(lng=longitude, lat=latitude)
+        if not timezone:
+            continue
+
+        address = place.get("address", {})
+        city_name = (
+            address.get("city")
+            or address.get("town")
+            or address.get("village")
+            or address.get("municipality")
+            or place.get("name")
+            or city
+        )
+        country_name = address.get("country") or country or ""
+        normalized_query = place.get("display_name") or ", ".join(
+            part for part in [city_name, country_name] if part
+        )
+
+        matches.append(
+            {
+                "city": city_name,
+                "country": country_name,
+                "latitude": latitude,
+                "longitude": longitude,
+                "timezone": timezone,
+                "normalized_query": normalized_query,
+                "source": "nominatim",
+            }
+        )
+
+    return matches
+
+
 def _geonames_matches(city: str, country: Optional[str], limit: int) -> list[Dict[str, Any]]:
     username = os.getenv("GEONAMES_USERNAME")
     if not username:
@@ -302,7 +366,11 @@ def search_local_location(city: str, country: str) -> Optional[Dict[str, Any]]:
         return _format_location(city.strip(), country.strip(), local_data, "local_fallback")
 
     geonames = _geonames_matches(city, country, 1)
-    return geonames[0] if geonames else None
+    if geonames:
+        return geonames[0]
+
+    nominatim = _nominatim_matches(city, country, 1)
+    return nominatim[0] if nominatim else None
 
 
 def list_matching_locations(
@@ -315,5 +383,8 @@ def list_matching_locations(
         return []
 
     local = _local_matches(city_query, country_query, limit)
-    geonames = _geonames_matches(city_query, country_query, max(limit - len(local), 0))
-    return _dedupe_locations([*local, *geonames], limit)
+    remaining_after_local = max(limit - len(local), 0)
+    geonames = _geonames_matches(city_query, country_query, remaining_after_local)
+    remaining_after_geonames = max(limit - len(local) - len(geonames), 0)
+    nominatim = _nominatim_matches(city_query, country_query, remaining_after_geonames)
+    return _dedupe_locations([*local, *geonames, *nominatim], limit)
