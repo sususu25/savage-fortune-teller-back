@@ -3,7 +3,10 @@ from typing import Any, Dict, List
 
 ANGULAR_HOUSES = {1, 4, 7, 10}
 HARD_ASPECTS = {"conjunction", "square", "opposition"}
+HARD_WITHOUT_CONJUNCTION = {"square", "opposition"}
 SOFT_ASPECTS = {"trine", "sextile"}
+EASY_ASPECTS = {"conjunction", "trine", "sextile"}
+MAJOR_ASPECTS = {"conjunction", "square", "opposition", "trine", "sextile"}
 
 
 SIGN_ELEMENTS = {
@@ -36,6 +39,22 @@ SIGN_MODALITIES = {
     "pisces": "mutable",
 }
 
+# Traditional chart rulers keep the newer six archetypes on the classic planet axis.
+SIGN_RULERS = {
+    "aries": "mars",
+    "taurus": "venus",
+    "gemini": "mercury",
+    "cancer": "moon",
+    "leo": "sun",
+    "virgo": "mercury",
+    "libra": "venus",
+    "scorpio": "mars",
+    "sagittarius": "jupiter",
+    "capricorn": "saturn",
+    "aquarius": "saturn",
+    "pisces": "jupiter",
+}
+
 WEIGHTED_PLANETS_BY_SIGN_OR_HOUSE = [
     "sun",
     "moon",
@@ -49,7 +68,7 @@ WEIGHTED_PLANETS_BY_SIGN_OR_HOUSE = [
     "pluto",
 ]
 
-PERSONAL_POINTS = {"sun", "moon", "mercury", "venus", "mars", "asc", "mc"}
+PERSONAL_POINTS = ["sun", "moon", "mercury", "venus", "mars", "asc"]
 
 
 def _normalize_name(value: str) -> str:
@@ -141,7 +160,7 @@ def _count_element_dominance(chart: Dict[str, Any], target_element: str) -> int:
     target_element = _normalize_name(target_element)
     score = 0
 
-    for point_name in ["sun", "moon", "mercury", "venus", "mars", "asc"]:
+    for point_name in PERSONAL_POINTS:
         body = _get_body(chart, point_name)
         if not body:
             continue
@@ -159,7 +178,7 @@ def _count_modality_dominance(chart: Dict[str, Any], target_modality: str) -> in
     target_modality = _normalize_name(target_modality)
     score = 0
 
-    for point_name in ["sun", "moon", "mercury", "venus", "mars", "asc"]:
+    for point_name in PERSONAL_POINTS:
         body = _get_body(chart, point_name)
         if not body:
             continue
@@ -194,29 +213,31 @@ def _has_strong_aspect(
     return _find_aspect(chart, p1, p2, allowed_aspects, max_orb) is not None
 
 
-def extract_features(chart: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    chart raw data 예시:
-    {
-      "planets": {
-        "sun": {"sign": "sagittarius", "house": 5, "degree": 26.1},
-        "moon": {"sign": "pisces", "house": 8, "degree": 11.3},
-        "saturn": {"sign": "pisces", "house": 7, "degree": 18.5}
-      },
-      "angles": {
-        "asc": {"sign": "cancer", "degree": 3.2},
-        "mc": {"sign": "aries", "degree": 15.1}
-      },
-      "points": {
-        "north_node": {"sign": "scorpio", "house": 5, "degree": 14.2}
-      },
-      "aspects": [
-        {"p1": "saturn", "p2": "sun", "type": "square", "orb": 2.1},
-        {"p1": "moon", "p2": "neptune", "type": "conjunction", "orb": 4.0}
-      ]
-    }
-    """
+def _get_asc_ruler(chart: Dict[str, Any]) -> str | None:
+    asc = _get_body(chart, "asc")
+    if not asc:
+        return None
 
+    asc_sign = _normalize_name(asc.get("sign", ""))
+    return SIGN_RULERS.get(asc_sign)
+
+
+def _asc_ruler_has_hard_personal_aspect(chart: Dict[str, Any]) -> bool:
+    asc_ruler = _get_asc_ruler(chart)
+    if not asc_ruler:
+        return False
+
+    for point_name in PERSONAL_POINTS:
+        if point_name in {asc_ruler, "asc"}:
+            continue
+
+        if _has_strong_aspect(chart, asc_ruler, point_name, HARD_WITHOUT_CONJUNCTION, 6):
+            return True
+
+    return False
+
+
+def extract_features(chart: Dict[str, Any]) -> Dict[str, Any]:
     features = {
         # Saturn / Burdened One
         "saturn_angular": _is_angular(chart, "saturn"),
@@ -269,8 +290,35 @@ def extract_features(chart: Dict[str, Any]) -> Dict[str, Any]:
         "north_node_asc_strong": _has_strong_aspect(chart, "north_node", "asc", {"conjunction", "trine", "sextile"}, 5),
         "north_node_mc_strong": _has_strong_aspect(chart, "north_node", "mc", {"conjunction", "trine", "sextile"}, 5),
         "jupiter_mc_strong": _has_strong_aspect(chart, "jupiter", "mc", {"conjunction", "trine", "sextile"}, 5),
-        "saturn_node_strong": _has_strong_aspect(chart, "saturn", "north_node", {"conjunction", "square", "opposition", "trine", "sextile"}, 5),
-        "pluto_node_strong": _has_strong_aspect(chart, "pluto", "north_node", {"conjunction", "square", "opposition", "trine", "sextile"}, 5),
+        "saturn_node_strong": _has_strong_aspect(chart, "saturn", "north_node", MAJOR_ASPECTS, 5),
+        "pluto_node_strong": _has_strong_aspect(chart, "pluto", "north_node", MAJOR_ASPECTS, 5),
+
+        # Classic planet archetypes
+        "sun_angular": _is_angular(chart, "sun"),
+        "leo_emphasis": _count_sign_emphasis(chart, "leo"),
+        "sun_jupiter_easy": _has_strong_aspect(chart, "sun", "jupiter", EASY_ASPECTS, 6),
+        "sun_asc_close": _has_strong_aspect(chart, "sun", "asc", {"conjunction"}, 6),
+        "fire_dominance": _count_element_dominance(chart, "fire"),
+        "moon_angular": _is_angular(chart, "moon"),
+        "cancer_emphasis": _count_sign_emphasis(chart, "cancer"),
+        "fourth_house_emphasis": _count_house_emphasis(chart, 4),
+        "moon_venus_hard": _has_strong_aspect(chart, "moon", "venus", HARD_WITHOUT_CONJUNCTION, 6),
+        "moon_mars_hard": _has_strong_aspect(chart, "moon", "mars", HARD_WITHOUT_CONJUNCTION, 6),
+        "moon_asc_close": _has_strong_aspect(chart, "moon", "asc", {"conjunction"}, 6),
+        "venus_angular": _is_angular(chart, "venus"),
+        "libra_emphasis": _count_sign_emphasis(chart, "libra"),
+        "taurus_emphasis": _count_sign_emphasis(chart, "taurus"),
+        "venus_jupiter_easy": _has_strong_aspect(chart, "venus", "jupiter", EASY_ASPECTS, 6),
+        "second_house_emphasis": _count_house_emphasis(chart, 2),
+        "first_house_emphasis": _count_house_emphasis(chart, 1),
+        "mars_sun_hard": _has_strong_aspect(chart, "mars", "sun", HARD_WITHOUT_CONJUNCTION, 6),
+        "mars_saturn_hard": _has_strong_aspect(chart, "mars", "saturn", HARD_WITHOUT_CONJUNCTION, 6),
+        "jupiter_angular": _is_angular(chart, "jupiter"),
+        "sagittarius_emphasis": _count_sign_emphasis(chart, "sagittarius"),
+        "ninth_house_emphasis": _count_house_emphasis(chart, 9),
+        "asc_ruler_hard": _asc_ruler_has_hard_personal_aspect(chart),
+        "sun_asc_hard": _has_strong_aspect(chart, "sun", "asc", HARD_WITHOUT_CONJUNCTION, 6),
+        "asc_moon_hard": _has_strong_aspect(chart, "moon", "asc", HARD_WITHOUT_CONJUNCTION, 6),
 
         # Secondary-tag helper features
         "mars_angular": _is_angular(chart, "mars"),
@@ -306,6 +354,21 @@ def extract_features(chart: Dict[str, Any]) -> Dict[str, Any]:
         bool(features["north_node_mc_strong"]) +
         bool(features["jupiter_mc_strong"]) +
         bool(features["saturn_node_strong"])
+    )
+
+    expansion_score = int(
+        bool(features["jupiter_angular"]) +
+        bool(features["sun_jupiter_easy"]) +
+        bool(features["venus_jupiter_easy"]) +
+        (1 if features["sagittarius_emphasis"] >= 2 else 0) +
+        (1 if features["ninth_house_emphasis"] >= 2 else 0)
+    )
+    saturn_moderation = _has_strong_aspect(chart, "jupiter", "saturn", MAJOR_ASPECTS, 6)
+    features["jupiter_overextension_signature"] = expansion_score >= 2 and not saturn_moderation
+
+    features["mask_signature"] = (
+        features["twelfth_house_emphasis"] >= 3
+        and bool(features["asc_ruler_hard"])
     )
 
     return features

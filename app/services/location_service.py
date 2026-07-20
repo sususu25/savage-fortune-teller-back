@@ -1,4 +1,8 @@
 from typing import Any, Dict, Optional
+import os
+
+import requests
+from timezonefinder import TimezoneFinder
 
 
 LOCAL_CITY_DATABASE = {
@@ -130,35 +134,57 @@ LOCAL_CITY_DATABASE = {
     },
 }
 
+COUNTRY_NAME_TO_CODE = {
+    "south korea": "KR",
+    "korea": "KR",
+    "republic of korea": "KR",
+    "united states": "US",
+    "usa": "US",
+    "japan": "JP",
+    "china": "CN",
+    "united kingdom": "GB",
+    "uk": "GB",
+    "france": "FR",
+    "germany": "DE",
+    "canada": "CA",
+    "australia": "AU",
+    "netherlands": "NL",
+    "india": "IN",
+    "united arab emirates": "AE",
+    "mexico": "MX",
+    "brazil": "BR",
+}
+
 
 def normalize_location_key(city: str, country: str) -> tuple[str, str]:
     return city.strip().lower(), country.strip().lower()
 
 
-def search_local_location(city: str, country: str) -> Optional[Dict[str, Any]]:
-    city_key, country_key = normalize_location_key(city, country)
+def _split_query(city: str, country: Optional[str]) -> tuple[str, Optional[str]]:
+    city = city.strip()
+    if country:
+        return city, country.strip()
 
-    local_data = LOCAL_CITY_DATABASE.get((city_key, country_key))
+    if "," not in city:
+        return city, None
 
-    if not local_data:
-        return None
+    city_part, country_part = [part.strip() for part in city.split(",", 1)]
+    return city_part, country_part or None
 
+
+def _format_location(city: str, country: str, data: Dict[str, Any], source: str) -> Dict[str, Any]:
     return {
         "city": city.strip(),
         "country": country.strip(),
-        "latitude": local_data["latitude"],
-        "longitude": local_data["longitude"],
-        "timezone": local_data["timezone"],
-        "normalized_query": local_data["normalized_query"],
-        "source": "local_fallback",
+        "latitude": data["latitude"],
+        "longitude": data["longitude"],
+        "timezone": data["timezone"],
+        "normalized_query": data["normalized_query"],
+        "source": source,
     }
 
 
-def list_matching_locations(
-    city: str,
-    country: Optional[str] = None,
-    limit: int = 8,
-) -> list[Dict[str, Any]]:
+def _local_matches(city: str, country: Optional[str], limit: int) -> list[Dict[str, Any]]:
     city_query = city.strip().lower()
     country_query = country.strip().lower() if country else ""
     matches = []
@@ -171,16 +197,123 @@ def list_matching_locations(
             continue
 
         city_name, country_name = local_data["normalized_query"].split(", ", 1)
+        matches.append(_format_location(city_name, country_name, local_data, "local_fallback"))
+
+    return matches[:limit]
+
+
+def _geonames_matches(city: str, country: Optional[str], limit: int) -> list[Dict[str, Any]]:
+    username = os.getenv("GEONAMES_USERNAME")
+    if not username:
+        return []
+
+    params: dict[str, Any] = {
+        "q": city,
+        "maxRows": limit,
+        "orderby": "relevance",
+        "featureClass": "P",
+        "type": "json",
+        "username": username,
+    }
+
+    if country:
+        country_code = COUNTRY_NAME_TO_CODE.get(country.strip().lower())
+        if country_code:
+            params["country"] = country_code
+
+    try:
+        response = requests.get(
+            "https://api.geonames.org/searchJSON",
+            params=params,
+            timeout=(3, 7),
+            headers={"User-Agent": "savage-fortune-teller/0.1"},
+        )
+        response.raise_for_status()
+        payload = response.json()
+    except Exception as exc:
+        print("DEBUG GeoNames location search failed:", repr(exc))
+        return []
+
+    if payload.get("status"):
+        print("DEBUG GeoNames status:", payload["status"])
+        return []
+
+    tf = TimezoneFinder()
+    matches: list[Dict[str, Any]] = []
+
+    for place in payload.get("geonames", []):
+        try:
+            latitude = float(place["lat"])
+            longitude = float(place["lng"])
+        except (KeyError, TypeError, ValueError):
+            continue
+
+        timezone = tf.timezone_at(lng=longitude, lat=latitude)
+        if not timezone:
+            continue
+
+        display_parts = [
+            place.get("name"),
+            place.get("adminName1"),
+            place.get("countryName"),
+        ]
+        normalized_query = ", ".join([part for part in display_parts if part])
+
         matches.append(
             {
-                "city": city_name,
-                "country": country_name,
-                "latitude": local_data["latitude"],
-                "longitude": local_data["longitude"],
-                "timezone": local_data["timezone"],
-                "normalized_query": local_data["normalized_query"],
-                "source": "local_fallback",
+                "city": place.get("name") or city,
+                "country": place.get("countryName") or country or "",
+                "latitude": latitude,
+                "longitude": longitude,
+                "timezone": timezone,
+                "normalized_query": normalized_query,
+                "source": "geonames",
             }
         )
 
-    return matches[:limit]
+    return matches
+
+
+def _dedupe_locations(locations: list[Dict[str, Any]], limit: int) -> list[Dict[str, Any]]:
+    seen: set[tuple[str, str]] = set()
+    deduped: list[Dict[str, Any]] = []
+
+    for location in locations:
+        key = (
+            str(location.get("normalized_query", "")).lower(),
+            f"{location.get('latitude')},{location.get('longitude')}",
+        )
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(location)
+        if len(deduped) >= limit:
+            break
+
+    return deduped
+
+
+def search_local_location(city: str, country: str) -> Optional[Dict[str, Any]]:
+    city_key, country_key = normalize_location_key(city, country)
+
+    local_data = LOCAL_CITY_DATABASE.get((city_key, country_key))
+
+    if local_data:
+        return _format_location(city.strip(), country.strip(), local_data, "local_fallback")
+
+    geonames = _geonames_matches(city, country, 1)
+    return geonames[0] if geonames else None
+
+
+def list_matching_locations(
+    city: str,
+    country: Optional[str] = None,
+    limit: int = 8,
+) -> list[Dict[str, Any]]:
+    city_query, country_query = _split_query(city, country)
+    if not city_query:
+        return []
+
+    local = _local_matches(city_query, country_query, limit)
+    geonames = _geonames_matches(city_query, country_query, max(limit - len(local), 0))
+    return _dedupe_locations([*local, *geonames], limit)
