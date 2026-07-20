@@ -3,6 +3,20 @@ from app.services.interpretation_selector import select_interpretations
 from app.data.archetype_copy import SECTION_TITLES, get_archetype_copy
 
 
+SECTION_WORD_LIMIT = 58
+
+
+def _shorten_section_text(text: str, word_limit: int = SECTION_WORD_LIMIT) -> str:
+    words = text.split()
+    if len(words) <= word_limit:
+        return text
+
+    shortened = " ".join(words[:word_limit]).rstrip(" ,;:")
+    if shortened.endswith((".", "!", "?")):
+        return shortened
+    return f"{shortened}."
+
+
 def build_reading_result(
     birth_date: str,
     birth_time: str,
@@ -30,6 +44,10 @@ def build_reading_result(
         primary_type_code=primary["code"],
         primary_score=primary["score"],
     )
+    sections = {
+        section_key: _shorten_section_text(section_text)
+        for section_key, section_text in sections.items()
+    }
 
     return {
         "primary_type": {
