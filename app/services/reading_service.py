@@ -3,7 +3,7 @@ from app.services.interpretation_selector import select_interpretations
 from app.data.archetype_copy import SECTION_TITLES, get_archetype_copy
 
 
-SECTION_WORD_LIMIT = 58
+SECTION_WORD_LIMIT = 40
 
 
 def _shorten_section_text(text: str, word_limit: int = SECTION_WORD_LIMIT) -> str:
