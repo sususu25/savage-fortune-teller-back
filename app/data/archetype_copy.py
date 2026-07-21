@@ -83,7 +83,7 @@ ARCHETYPE_COPY = {'burdened_one': {'viral_alias': 'The Unpaid Project Manager of
                                       'extremely shareable.'},
  'ascendant_mask': {'viral_alias': 'The Different Person Depending on the Lighting',
                     'headline': 'You are composed, warm, and camera-ready in public, and an '
-                                'entirely different animal the second the group chat goes quiet or '
+                                'entirely different person the second the group chat goes quiet or '
                                 'the door finally closes.',
                     'result_badge': 'authentically unverifiable',
                     'share_text': 'I got {score}% The Different Person Depending on the Lighting. '
