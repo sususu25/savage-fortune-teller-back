@@ -4,6 +4,14 @@ from functools import lru_cache
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+DEFAULT_FRONTEND_ORIGINS = [
+    "https://savagefortuneteller.com",
+    "https://www.savagefortuneteller.com",
+    "https://project-9be92077-338f-4f14-a98.web.app",
+    "https://project-9be92077-338f-4f14-a98.firebaseapp.com",
+]
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -23,14 +31,20 @@ class Settings(BaseSettings):
     def backend_cors_origins(self) -> list[str]:
         value = self.BACKEND_CORS_ORIGINS.strip()
         if not value:
-            return []
+            return DEFAULT_FRONTEND_ORIGINS
 
         if value.startswith("["):
             parsed = json.loads(value)
             if isinstance(parsed, list):
-                return [str(origin).strip() for origin in parsed if str(origin).strip()]
+                configured = [str(origin).strip() for origin in parsed if str(origin).strip()]
+                if "*" in configured:
+                    return configured
+                return sorted(set(configured + DEFAULT_FRONTEND_ORIGINS))
 
-        return [origin.strip() for origin in value.split(",") if origin.strip()]
+        configured = [origin.strip() for origin in value.split(",") if origin.strip()]
+        if "*" in configured:
+            return configured
+        return sorted(set(configured + DEFAULT_FRONTEND_ORIGINS))
 
 
 @lru_cache

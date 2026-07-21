@@ -9,6 +9,9 @@ from app.repositories import share_repository
 from app.schemas.share import ShareCreateRequest
 
 
+CANONICAL_APP_URL = "https://savagefortuneteller.com"
+
+
 class ShareNotFoundError(Exception):
     pass
 
@@ -18,10 +21,12 @@ def _generate_share_id() -> str:
 
 
 def _build_share_url(share_path: str) -> str | None:
-    if not settings.PUBLIC_APP_URL:
-        return None
+    public_app_url = settings.PUBLIC_APP_URL or CANONICAL_APP_URL
 
-    return f"{settings.PUBLIC_APP_URL.rstrip('/')}{share_path}"
+    if "web.app" in public_app_url or "firebaseapp.com" in public_app_url:
+        public_app_url = CANONICAL_APP_URL
+
+    return f"{public_app_url.rstrip('/')}{share_path}"
 
 
 def create_share(request: ShareCreateRequest) -> dict[str, Any]:
