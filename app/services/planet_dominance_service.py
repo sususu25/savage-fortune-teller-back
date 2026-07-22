@@ -28,6 +28,20 @@ PERSONAL_POINTS = {"sun", "moon", "mercury", "venus", "mars", "asc"}
 CORE_POINTS = {"sun", "moon", "asc"}
 MAJOR_ASPECTS = {"conjunction", "square", "opposition", "trine", "sextile"}
 HARD_ASPECTS = {"conjunction", "square", "opposition"}
+ORDINAL_HOUSES = {
+    1: "1st",
+    2: "2nd",
+    3: "3rd",
+    4: "4th",
+    5: "5th",
+    6: "6th",
+    7: "7th",
+    8: "8th",
+    9: "9th",
+    10: "10th",
+    11: "11th",
+    12: "12th",
+}
 
 PLANET_COPY = {
     "sun": {
@@ -203,13 +217,33 @@ FEATURE_WEIGHTS = {
 
 FEATURE_RECEIPTS = {
     "angular_house": "{planet} in an angular house makes it hard to hide. The chart put it near a microphone.",
-    "angle_aspect": "{planet} is tied to the Ascendant or Midheaven, so it acts personal instead of politely generational.",
+    "angle_aspect": "{planet} has a close contact with a major chart angle, so it acts personal instead of politely staying in the background.",
     "core_point_aspect": "{planet} aspects the Sun, Moon, or Ascendant. That is identity-level evidence, not wallpaper.",
     "personal_aspect_stack": "{planet} has multiple major aspects to personal planets. The chart keeps repeating the same witness.",
     "chart_ruler": "{planet} rules the Ascendant sign, so it manages the front desk of the personality.",
-    "natural_house": "{planet} lands in one of its natural houses, where it gets louder and less supervised.",
+    "natural_house": "{planet} lands in a house where its themes get extra stage time.",
     "house_theme": "{planet}'s house themes repeat across the chart, which is how astrology says 'this again?'",
 }
+
+VENUS_REAL_LIFE = (
+    "You rarely want something merely because it is useful. It must also feel right, look right, and fit the private movie playing in your head.\n\n"
+    "In love, you may crave loyalty and stability while repeatedly being fascinated by people who arrive with unusual circumstances, mixed signals, or an impressive collection of emotional complications.\n\n"
+    "With money, you can be disciplined for weeks and then decide that one beautifully designed object is not a purchase but a necessary correction to your quality of life."
+)
+
+VENUS_GIFT = (
+    "You understand value. You notice quality, atmosphere, presentation, and emotional nuance that other people miss. "
+    "When your standards are grounded in reality, your taste becomes discernment rather than decoration."
+)
+
+VENUS_DAMAGE = (
+    "The problem begins when beauty becomes proof of worth, longing becomes proof of love, "
+    "and an expensive preference is promoted to a basic human need."
+)
+
+VENUS_VERDICT = (
+    "Keep the standards. Check the fantasy. And for heaven's sake, stop calling every emotionally confusing person \"interesting.\""
+)
 
 
 def _title(value: str) -> str:
@@ -220,12 +254,28 @@ def _format_planet(value: str) -> str:
     return _title(value)
 
 
+def _format_degree_minutes(value: float) -> str:
+    degree = int(value)
+    minutes = int(round((value - degree) * 60))
+    if minutes == 60:
+        degree += 1
+        minutes = 0
+    return f"{degree}°{minutes:02d}′"
+
+
+def _format_house(value: int | None) -> str:
+    if not value:
+        return "House unknown"
+    return f"{ORDINAL_HOUSES.get(value, str(value) + 'th')} House"
+
+
 def _format_placement(body: Dict[str, Any] | None) -> str:
     if not body:
         return "Unknown"
     house = body.get("house")
-    house_text = f" house {house}" if house else ""
-    return f"{_title(str(body.get('sign', 'unknown')))} {float(body.get('degree', 0)):.1f} deg{house_text}"
+    degree = _format_degree_minutes(float(body.get("degree", 0)))
+    house_text = f" · {_format_house(int(house))}" if house else ""
+    return f"{_title(str(body.get('sign', 'unknown')))} {degree}{house_text}"
 
 
 def _get_body(chart: Dict[str, Any], name: str) -> Dict[str, Any] | None:
@@ -254,6 +304,10 @@ def _find_aspects(chart: Dict[str, Any], planet: str, targets: set[str], allowed
         if other in targets and str(aspect.get("type", "")).lower() in allowed and float(aspect.get("orb", 999)) <= max_orb:
             matches.append(aspect)
     return sorted(matches, key=lambda item: float(item.get("orb", 999)))
+
+
+def _aspect_label(aspect: Dict[str, Any]) -> str:
+    return f"{_format_planet(str(aspect.get('p1', 'unknown')))}-{_format_planet(str(aspect.get('p2', 'unknown')))}"
 
 
 def _house_count(chart: Dict[str, Any], house: int) -> int:
@@ -399,12 +453,26 @@ def _dominant_element_and_modality(chart: Dict[str, Any]) -> Tuple[str | None, s
 def _build_signatures(chart: Dict[str, Any], features: Dict[str, Any], top_planets: List[Dict[str, Any]]) -> List[str]:
     signatures: List[str] = []
     top_codes = [planet["code"] for planet in top_planets]
+    primary_code = top_codes[0] if top_codes else None
+
+    primary_aspects = []
+    if primary_code:
+        for aspect in chart.get("aspects", []):
+            p1 = str(aspect.get("p1", "")).lower()
+            p2 = str(aspect.get("p2", "")).lower()
+            if primary_code in {p1, p2}:
+                other = p2 if p1 == primary_code else p1
+                if other in set(top_codes[1:] + ["north_node", "asc", "mc"]):
+                    primary_aspects.append(aspect)
+
+    for aspect in sorted(primary_aspects, key=lambda item: float(item.get("orb", 999)))[:3]:
+        signatures.append(_aspect_label(aspect))
 
     for aspect in chart.get("aspects", []):
         p1 = str(aspect.get("p1", "")).lower()
         p2 = str(aspect.get("p2", "")).lower()
         if (p1 in top_codes or p2 in top_codes) and (p1 in PERSONAL_POINTS or p2 in PERSONAL_POINTS):
-            signatures.append(f"{_format_planet(p1)}-{_format_planet(p2)}")
+            signatures.append(_aspect_label(aspect))
         if len(signatures) >= 3:
             break
 
@@ -424,35 +492,90 @@ def _build_signatures(chart: Dict[str, Any], features: Dict[str, Any], top_plane
     for feature, label in house_names.items():
         if int(features.get(feature, 0) or 0) >= 2:
             signatures.append(label)
+        if len(list(dict.fromkeys(signatures))) >= 4:
+            break
 
-    element, modality = _dominant_element_and_modality(chart)
-    if element:
-        signatures.append(f"{_title(element)} Emphasis")
-    if modality:
-        signatures.append(f"{_title(modality)} Emphasis")
-
-    return list(dict.fromkeys(signatures))[:6]
+    return list(dict.fromkeys(signatures))[:4]
 
 
-def _build_sections(primary: Dict[str, Any], top_planets: List[Dict[str, Any]], chart_ruler: str | None, signatures: List[str]) -> Dict[str, str]:
+def _build_receipts(primary: Dict[str, Any], chart: Dict[str, Any]) -> str:
+    planet = str(primary["code"])
+    body = _get_body(chart, planet)
+
+    if planet == "venus" and body:
+        house = int(body.get("house") or 0)
+        house_label = _format_house(house).lower()
+        first = (
+            f"Venus sits in the {ORDINAL_HOUSES.get(house, str(house) + 'th')} house, one of the chart's angular houses, "
+            "so its themes are difficult to hide. Relationships, attraction, taste, and personal values tend to become major arenas of development."
+            if house in ANGULAR_HOUSES
+            else f"Venus sits in the {house_label}, making relationships, attraction, taste, and personal values major arenas of development."
+        )
+        venus_contacts = []
+        for target in ["uranus", "neptune", "north_node"]:
+            if _find_aspects(chart, "venus", {target}, MAJOR_ASPECTS, 6):
+                venus_contacts.append(_format_planet(target))
+
+        if venus_contacts:
+            if len(venus_contacts) == 1:
+                contact_text = venus_contacts[0]
+            else:
+                contact_text = f"{', '.join(venus_contacts[:-1])}, and {venus_contacts[-1]}"
+            second = (
+                f"Its contacts with {contact_text} make the Venus story louder: attraction may arrive suddenly, "
+                "ideals can outrun reality, and relationships rarely feel emotionally neutral."
+            )
+        else:
+            second = (
+                "The Venus story is loud enough on its own: attraction, loyalty, beauty, and value keep asking to be handled consciously."
+            )
+
+        return (
+            f"{first}\n\n{second}\n\n"
+            "In plain English: your love life does not enter quietly. It kicks the door open wearing expensive perfume."
+        )
+
+    receipts = primary.get("receipts") or ["The chart kept the evidence subtle. Suspiciously tasteful, but allowed."]
+    return " ".join(receipts[:4])
+
+
+def _build_sections(
+    primary: Dict[str, Any],
+    top_planets: List[Dict[str, Any]],
+    chart_ruler: str | None,
+    signatures: List[str],
+    chart: Dict[str, Any],
+) -> Dict[str, str]:
     ruler_text = _format_planet(chart_ruler) if chart_ruler else "Unknown"
     loudest = " / ".join(_format_planet(item["code"]) for item in top_planets[:3])
-    receipts = primary.get("receipts") or ["The chart kept the evidence subtle. Suspiciously tasteful, but allowed."]
     outer_note = (
         "Uranus, Neptune, and Pluto are scored as personal only when they hit angles, personal planets, houses, or repeating themes. Their sign placement alone stays background weather."
     )
 
-    return {
-        "dominant_planet_diagnosis": (
+    if primary["code"] == "venus":
+        real_life = VENUS_REAL_LIFE
+        gift = VENUS_GIFT
+        damage = VENUS_DAMAGE
+        verdict = VENUS_VERDICT
+    else:
+        real_life = (
             f"You are {primary['viral_alias']}. Dominant planet: {_format_planet(primary['code'])}. "
-            f"Chart ruler: {ruler_text}. This is the planet running the loudest department in the chart."
+            f"Chart ruler: {ruler_text}. This planet describes the behavior pattern that keeps showing up before you have had time to make it sound reasonable."
+        )
+        gift = f"When this signature is grounded, {primary['label']} gives you a clear instinct for where your attention, effort, and timing belong."
+        damage = f"The damage starts when {primary['result_badge']} stops being a pattern you can use and becomes an excuse you keep redecorating."
+        verdict = PLANET_COPY[primary["code"]]["advice"]
+
+    return {
+        "real_life": real_life,
+        "the_gift": gift,
+        "the_damage": damage,
+        "the_receipts": _build_receipts(primary, chart),
+        "signature_details": (
+            f"Loudest planets: {loudest}. These are the types to follow in forecasts. "
+            f"Signatures: {', '.join(signatures) if signatures else 'subtle chart noise with plausible deniability'}. {outer_note}"
         ),
-        "the_receipts": " ".join(receipts[:4]),
-        "loudest_planets": (
-            f"Loudest planets: {loudest}. Signatures: {', '.join(signatures) if signatures else 'subtle chart noise with plausible deniability'}."
-        ),
-        "generation_planet_note": outer_note,
-        "court_ordered_advice": PLANET_COPY[primary["code"]]["advice"],
+        "grandmothers_verdict": verdict,
     }
 
 
@@ -494,13 +617,14 @@ def build_planetary_reading_result(
         "loudest_planets": loudest,
         "signatures": signatures,
         "section_titles": {
-            "dominant_planet_diagnosis": "Dominant Planet",
+            "real_life": "How This Shows Up in Real Life",
+            "the_gift": "The Gift",
+            "the_damage": "The Damage",
             "the_receipts": "The Receipts",
-            "loudest_planets": "Loudest Planets",
-            "generation_planet_note": "Outer Planet Rule",
-            "court_ordered_advice": "Court-Ordered Advice",
+            "signature_details": "Detailed Signatures",
+            "grandmothers_verdict": "Grandmother's Verdict",
         },
-        "sections": _build_sections(primary, loudest, chart_ruler, signatures),
+        "sections": _build_sections(primary, loudest, chart_ruler, signatures, chart),
         "all_planet_scores": {item["code"]: item for item in scored},
         "features": features,
         "chart": chart,
